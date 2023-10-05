@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, email, password, username):
+    def create_superuser(self, email, username, password=None):
         """ 관리자를 생성하는 메서드입니다. """
         if not email:
             raise ValueError('유효하지 않은 이메일 형식입니다.')
@@ -31,6 +31,7 @@ class UserManager(BaseUserManager):
             password=password,
             username=username,
         )
+
         user.is_admin = True
         user.save(using=self._db)
         return user
@@ -86,7 +87,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'password']
+    REQUIRED_FIELDS = ['username',]
 
     def __str__(self):
         return self.username
