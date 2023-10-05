@@ -65,8 +65,10 @@ class User(AbstractBaseUser):
     - profile_img : 사용자의 프로필 사진입니다.
     - birthday : 사용자의 생년월일입니다.
     - following : 사용자간 팔로우 관계입니다.
-    - created_at : 회원가입 일자 및 시간입니다.
-    - updated_at : 회원 정보 마지막 수정 일자 및 시간입니다.
+    - created_at : 회원가입일입니다.
+        - 사용자가 가입한 일자를 자동으로 저장하도록 설정합니다.
+    - updated_at : 회원 정보 마지막 수정일입니다.
+        - 사용자가 회원 정보를 수정할 때마다 자동으로 갱신되도록 설정합니다.
     - is_admin : 관리자 권한 여부입니다.
         - True 혹은 False를 저장할 수 있으며, 기본값으로 True를 저장하도록 설정합니다.
     - is_active : 계정 활성화 여부입니다.

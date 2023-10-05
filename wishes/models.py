@@ -40,7 +40,7 @@ class Comment(models.Model):
         - 댓글이 작성된 시간을 자동으로 저장하도록 설정합니다.
     """
     author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="댓글 작성자", on_delete=models.SET_NULL, null=True)
-    wish = models.ForeignKey("위시", Wish, verbose_name="wish_comment", on_delete=models.CASCADE, related_name="comments")    
+    wish = models.ForeignKey(Wish, verbose_name="위시", on_delete=models.CASCADE, related_name="comments")    
     content = models.TextField("댓글 내용")
     created_at = models.DateTimeField("댓글 생성 시각", auto_now_add=True)
 
