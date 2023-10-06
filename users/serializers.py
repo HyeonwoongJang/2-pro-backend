@@ -42,13 +42,13 @@ class UserSerializer(serializers.ModelSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
 
-        email = instance.email
+        email = instance.email # 프론트 단에서 email 받지 못하게끔 설정 필요. 설정 시 삭제 가능한 부분.
         
         # 나머지 필드 업데이트
         for key, value in validated_data.items():
             setattr(instance, key, value)
         
-        setattr(instance, 'email', email)
+        setattr(instance, 'email', email) # 프론트 단에서 email 받지 못하게끔 설정 필요. 설정 시 삭제 가능한 부분.
         
         instance.save()
         return instance
