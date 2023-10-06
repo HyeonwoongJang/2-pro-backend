@@ -7,19 +7,19 @@ from wishes.serializers import WishCreateSerializer, WishSerializer, CommentSeri
 
 
 class WishView(APIView):
+    """
+    wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
+    wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
+    """
     def get(self, request, wish_id=None):
         if wish_id is None:
             wishes = Wish.objects.all()
             serializer = WishSerializer(wishes, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            wish = Wish.objects.get(id=wish_id)
-            serializer = WishSerializer(wish)
+            wish_detail = get_object_or_404(Wish, id=wish_id)
+            serializer = WishSerializer(wish_detail)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        """
-        wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
-        wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
-        """
 
     def post(self, request):
         """위시 정보를 받아 위시를 생성합니다."""
@@ -63,11 +63,33 @@ class CommentView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 class LikeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, wish_id):
         """like / unlike 기능입니다."""
+        wish = Wish.objects.get(id=wish_id)
+        me = request.user
+        if me in wish.likes.all():
+            wish.likes.remove(me)
+            return Response("unlike 했습니다.", status=status.HTTP_200_OK)
+        else :
+            wish.likes.add(me)
+            return Response("like 했습니다.", status=status.HTTP_200_OK)
+
 
 
 class BookmarkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
     def post(self, request, wish_id):
         """bookmark / unbookmark 기능입니다."""
+        wish = Wish.objects.get(id=wish_id)
+        me = request.user
+        if me in wish.bookmarks.all():
+            wish.bookmarks.remove(me)
+            return Response("unbookmark 했습니다.", status=status.HTTP_200_OK)
+        else :
+            wish.bookmarks.add(me)
+            return Response("bookmark 했습니다.", status=status.HTTP_200_OK)
