@@ -13,7 +13,7 @@ class Wish(models.Model):
         - 위시를 수정할 때마다 자동으로 갱신되도록 설정합니다.
     - wish_img : 위시 이미지입니다.
     - likes : 위시를 좋아요 한 유저와의 관계입니다.
-    - bookkmarks : 위시를 북마크 한 유저와의 관계입니다.
+    - bookmarks : 위시를 북마크 한 유저와의 관계입니다.
     """
     
     author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="작성자", on_delete=models.SET_NULL, null=True, related_name="wishes")
