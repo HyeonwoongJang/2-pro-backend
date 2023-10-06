@@ -13,4 +13,4 @@ class SignupView(APIView):
             serializer.save()
             return Response({"message":"회원가입 성공!"}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"message":serializer.erorrs}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
