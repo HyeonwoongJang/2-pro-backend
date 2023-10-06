@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from wishes.models import Wish
+from wishes.models import Comment, Wish
+
 
 class WishCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,3 +24,8 @@ class WishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wish
         fields = "__all__"
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content",)
