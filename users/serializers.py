@@ -2,6 +2,13 @@ from rest_framework import serializers
 from users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "profile_img", "birthday", "following", "created_at", "updated_at")
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     """ 회원가입 페이지, 회원 정보 수정 페이지에서 사용자가 보내는 JSON 형태의 데이터를 역직렬화하여 모델 객체 형태의 데이터를 생성하기 위한 Serializer 입니다. """
@@ -45,7 +52,6 @@ class UserSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
-
 
 class LoginSerializer(TokenObtainPairSerializer):
     """DRF의 JWT 로그인 방식에 사용되는 TokenObtainPairSerializer를 상속하여 Serializer를 커스터마이징하여 재정의합니다."""
