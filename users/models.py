@@ -78,7 +78,7 @@ class User(AbstractBaseUser):
     username = models.CharField('아이디', max_length=30, unique=True)
     password = models.CharField('비밀번호', max_length=255)
     email = models.EmailField('이메일', max_length=255, unique=True)
-    profile_img = models.ImageField('프로필 이미지', upload_to='profile_images/', blank=True, null=True)
+    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/%Y%M%D/', blank=True, null=True)
     birthday = models.DateField('생년월일', blank=True, null=True)
     following = models.ManyToManyField('self', verbose_name='팔로잉', symmetrical=False, related_name='followers', blank=True)
     created_at = models.DateField('가입일', auto_now_add=True)

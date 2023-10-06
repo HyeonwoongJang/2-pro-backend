@@ -22,7 +22,7 @@ class Wish(models.Model):
     content = models.TextField("내용")
     created_at = models.DateTimeField("생성 시각", auto_now_add=True)
     updated_at = models.DateTimeField("수정 시각",auto_now=True)
-    wish_img = models.ImageField("위시 이미지", blank=True, null=True, upload_to='wish_image/')
+    wish_img = models.ImageField("위시 이미지", blank=True, null=True, upload_to='wish/wish_img/%Y%M%D/')
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL,verbose_name="좋아요", related_name="likes")
     bookmarks = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name="북마크", related_name="bookmarks")
     
