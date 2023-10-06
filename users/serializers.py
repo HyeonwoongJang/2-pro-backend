@@ -35,6 +35,23 @@ class UserSerializer(serializers.ModelSerializer):
     #     user.save()
     #     return user
 
+    def update(self, instance, validated_data):
+        """email은 수정되지 않도록, 나머지 필드는 수정되도록 설정했습니다."""
+        # password hashing
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        email = instance.email
+        
+        # 나머지 필드 업데이트
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        
+        setattr(instance, 'email', email)
+        
+        instance.save()
+        return instance
 
 class LoginSerializer(TokenObtainPairSerializer):
     """DRF의 JWT 로그인 방식에 사용되는 TokenObtainPairSerializer를 상속하여 Serializer를 커스터마이징하여 재정의합니다."""
@@ -48,4 +65,3 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['profile_img'] = user.profile_img.url
         
         return token
-
