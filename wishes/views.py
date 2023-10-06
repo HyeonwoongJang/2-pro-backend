@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from wishes.serializers import WishSerializer, WishCreateSerializer, WishListSerializer
+from wishes.serializers import WishSerializer, WishCreateSerializer, WishListSerializer, CommentSerializer
 
 from wishes.models import Wish, Comment
 
@@ -38,7 +38,7 @@ class WishView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                                
+
     def put(self, request, wish_id):
         """수정된 위시 정보를 받아 위시를 수정합니다."""
         wish = get_object_or_404(Wish, id=wish_id)
@@ -52,7 +52,6 @@ class WishView(APIView):
         else:
             return Response("권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
 
-    
     def delete(self, request, wish_id):
         """지정된 위시를 삭제합니다."""
         wish = get_object_or_404(Wish, id=wish_id)
@@ -62,17 +61,57 @@ class WishView(APIView):
         else:
             return Response("권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
 
+
 class CommentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, wish_id):
         """wish_id를 받아 해당 위시에 댓글을 생성합니다."""
-        
-    def delete(self, request, comment_id):
-        """지정된 댓글을 삭제합니다.""" 
+        serialzer = CommentSerializer(data=request.data)
+        if serialzer.is_valid():
+            serialzer.save(author=request.user, wish_id=wish_id)
+            return Response(serialzer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, wish_id, comment_id):
+        """지정된 댓글을 삭제합니다."""
+        comment = get_object_or_404(Comment, id=comment_id)
+        # print(comment)
+        if not request.user == comment.author:
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 class LikeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, wish_id):
         """like / unlike 기능입니다."""
+        wish = Wish.objects.get(id=wish_id)
+        me = request.user
+        if me in wish.likes.all():
+            wish.likes.remove(me)
+            return Response("unlike 했습니다.", status=status.HTTP_200_OK)
+        else :
+            wish.likes.add(me)
+            return Response("like 했습니다.", status=status.HTTP_200_OK)
+
+
 
 class BookmarkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
     def post(self, request, wish_id):
         """bookmark / unbookmark 기능입니다."""
+        wish = Wish.objects.get(id=wish_id)
+        me = request.user
+        if me in wish.bookmarks.all():
+            wish.bookmarks.remove(me)
+            return Response("unbookmark 했습니다.", status=status.HTTP_200_OK)
+        else :
+            wish.bookmarks.add(me)
+            return Response("bookmark 했습니다.", status=status.HTTP_200_OK)

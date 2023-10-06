@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from wishes.models import Wish, WishImage
+from wishes.models import Comment, Wish, WishImage
 
 class WishImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True) # use_url=True : 이미지 URL을 사용하도록 설정, 이미지의 URL을 JSON 응답에 포함시킴.
@@ -30,9 +30,11 @@ class WishCreateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         image_set = self.context['request'].FILES.getlist('image')
+
         instance.image.all().delete()
+
         for image_data in image_set:
-            WishImage.objects.update(wish=instance, image=image_data)
+            WishImage.objects.create(wish=instance, image=image_data)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -75,8 +77,20 @@ class WishSerializer(serializers.ModelSerializer):
         return WishImageSerializer(instance=image, many=True, context=self.context).data
 
     def get_author(self, obj):
+        """
+        Wish 모델의 author 필드는 ForeignKey입니다.
+        author필드를 정참조하여 참조 모델 객체(User)의 username 필드 값을 반환합니다.
+        """
         return obj.author.username
+
+    likes = serializers.StringRelatedField(many=True)
+    bookmarks = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Wish
         fields = "__all__"
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content",)
