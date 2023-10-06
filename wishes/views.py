@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
-from wishes.serializers import WishCreateSerializer, WishSerializer
-from wishes.models import Wish
+from rest_framework.generics import get_object_or_404
+from wishes.models import Comment, Wish
+from wishes.serializers import WishCreateSerializer, WishSerializer, CommentSerializer
 
 
 class WishView(APIView):
@@ -40,11 +41,26 @@ class WishView(APIView):
 
 
 class CommentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, wish_id):
         """wish_id를 받아 해당 위시에 댓글을 생성합니다."""
+        serialzer = CommentSerializer(data=request.data)
+        if serialzer.is_valid():
+            serialzer.save(author=request.user, wish_id=wish_id)
+            return Response(serialzer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, comment_id):
+    def delete(self, request, wish_id, comment_id):
         """지정된 댓글을 삭제합니다."""
+        comment = get_object_or_404(Comment, id=comment_id)
+        # print(comment)
+        if not request.user == comment.author:
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LikeView(APIView):
