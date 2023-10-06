@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "password", "email", "profie_img", "birthday")
+        fields = ("username", "password", "email", "profile_img", "birthday")
 
     def create(self, validated_data):
         """회원가입 시 사용자가 보내는 JSON 형태의 데이터를 모델 객체의 형태로 역직렬화하는 메서드입니다."""
