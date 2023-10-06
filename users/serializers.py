@@ -1,5 +1,12 @@
 from rest_framework import serializers
 from users.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "profile_img", "birthday", "following", "created_at", "updated_at")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -27,4 +34,18 @@ class UserSerializer(serializers.ModelSerializer):
     #     user.set_password(password)
     #     user.save()
     #     return user
+
+
+class LoginSerializer(TokenObtainPairSerializer):
+    """DRF의 JWT 로그인 방식에 사용되는 TokenObtainPairSerializer를 상속하여 Serializer를 커스터마이징하여 재정의합니다."""
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['email'] = user.email
+        token['username'] = user.username
+        token['profile_img'] = user.profile_img.url
+        
+        return token
 
