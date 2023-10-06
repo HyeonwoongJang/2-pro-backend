@@ -28,14 +28,19 @@ class UserSerializer(serializers.ModelSerializer):
     #     return user
 
     def update(self, instance, validated_data):
+        """email은 수정되지 않도록, 나머지 필드는 수정되도록 설정했습니다."""
         # password hashing
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
+
+        email = instance.email
         
         # 나머지 필드 업데이트
         for key, value in validated_data.items():
             setattr(instance, key, value)
+        
+        setattr(instance, 'email', email)
         
         instance.save()
         return instance
