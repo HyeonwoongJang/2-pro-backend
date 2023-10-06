@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, LoginSerializer
 
 class SignupView(APIView):
     def post(self, request):
@@ -14,3 +15,11 @@ class SignupView(APIView):
             return Response({"message":"회원가입 성공!"}, status=status.HTTP_201_CREATED)
         else:
             return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class LoginView(TokenObtainPairView):
+    """
+    사용자의 정보를 받아 로그인합니다.
+    DRF의 JWT 토큰 인증 로그인 방식에 기본 제공되는 클래스 뷰를 커스터마이징하여 재정의합니다.
+    """
+    serializer_class = LoginSerializer
