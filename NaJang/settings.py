@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -108,13 +109,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "users.User"
 
 SIMPLE_JWT = {
-
-    """
-    기본 제공 시리얼라이저 대신 사용자가 정의한 시리얼라이저를 사용하여 토큰을 생성하기 위해 DRF JWT의 토큰 생성 및 관리 프로세스를 사용자 지정하여 재정의합니다.
-    https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
-    이제 사용자가 'http://127.0.0.1:8000/user/login/'으로 로그인 요청이 들어오면 사용자를 검증하고 LoginSerializer를 사용하여 생성된 토큰이 발급됩니다.
-    """
-
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=720),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
@@ -146,7 +140,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 
-    "TOKEN_OBTAIN_SERIALIZER": "users.serializers.LoginSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "users.serializers.LoginSerializer", # customize한 serializer로 변경함.
     # "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
