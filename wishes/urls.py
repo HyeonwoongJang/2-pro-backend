@@ -1,5 +1,4 @@
 from django.urls import path
-from users import views
 from wishes import views
 
 urlpatterns = [
