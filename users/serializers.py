@@ -1,14 +1,13 @@
 from rest_framework import serializers
 from users.models import User
 
-
 class UserSerializer(serializers.ModelSerializer):
 
     """ 회원가입 페이지, 회원 정보 수정 페이지에서 사용자가 보내는 JSON 형태의 데이터를 역직렬화하여 모델 객체 형태의 데이터를 생성하기 위한 Serializer 입니다. """
 
     class Meta:
         model = User
-        fields = ("username", "password", "email", "profie_img", "birthday")
+        fields = ("username", "password", "email", "profile_img", "birthday")
 
     def create(self, validated_data):
         """회원가입 시 사용자가 보내는 JSON 형태의 데이터를 모델 객체의 형태로 역직렬화하는 메서드입니다."""
@@ -27,4 +26,18 @@ class UserSerializer(serializers.ModelSerializer):
     #     user.set_password(password)
     #     user.save()
     #     return user
+
+    def update(self, instance, validated_data):
+        # password hashing
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        
+        # 나머지 필드 업데이트
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        
+        instance.save()
+        return instance
+
 
