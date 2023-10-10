@@ -65,11 +65,6 @@ class WishListSerializer(serializers.ModelSerializer):
         model = Wish
         fields = ("id", "author", "title", "wish_name", "content", "images", "likes_count", "bookmarks_count", "created_at")
 
-# class CommentSerializer(serializers.ModelSerializer):   # comment serializer를 읽기 위해선 wish serializer보다 더 위에 위치해야 함.
-#     class Meta:
-#         model = Comment
-#         fields = ("content",)
-
 class CommentSerializer(serializers.ModelSerializer):   # comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
     class Meta:
         model = Comment
