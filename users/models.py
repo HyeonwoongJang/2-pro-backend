@@ -70,7 +70,7 @@ class User(AbstractBaseUser):
     - updated_at : 회원 정보 마지막 수정일입니다.
         - 사용자가 회원 정보를 수정할 때마다 자동으로 갱신되도록 설정합니다.
     - is_admin : 관리자 권한 여부입니다.
-        - True 혹은 False를 저장할 수 있으며, 기본값으로 True를 저장하도록 설정합니다.
+        - True 혹은 False를 저장할 수 있으며, 기본값으로 False를 저장하도록 설정합니다.
     - is_active : 계정 활성화 여부입니다.
         - True 혹은 False를 저장할 수 있으며, 기본값으로 True를 저장하도록 설정합니다.
     """
@@ -78,13 +78,15 @@ class User(AbstractBaseUser):
     username = models.CharField('아이디', max_length=30, unique=True)
     password = models.CharField('비밀번호', max_length=255)
     email = models.EmailField('이메일', max_length=255, unique=True)
-    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/%Y%M%D/', blank=True, null=True)
+    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/%Y/%m/%D/', blank=True, null=True)
     birthday = models.DateField('생년월일', blank=True, null=True)
     following = models.ManyToManyField('self', verbose_name='팔로잉', symmetrical=False, related_name='followers', blank=True)
     created_at = models.DateField('가입일', auto_now_add=True)
     updated_at = models.DateField('수정일', auto_now=True)
     is_admin = models.BooleanField('관리자 권한 여부', default=False)
     is_active = models.BooleanField('계정 활성화 여부', default=True)
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.CharField(max_length=100, null=True, blank=True)
 
     objects = UserManager()
 
