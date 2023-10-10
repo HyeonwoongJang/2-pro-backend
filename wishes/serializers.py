@@ -59,7 +59,7 @@ class WishListSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     def get_bookmarks_count(self, obj):
-        return obj.likes.count()
+        return obj.bookmarks.count()
 
     class Meta:
         model = Wish
