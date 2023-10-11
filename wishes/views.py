@@ -14,7 +14,7 @@ class WishView(APIView):
         """
         if wish_id == None:
             """ 모든 게시물 List를 반환합니다. """
-            wishes = Wish.objects.all()
+            wishes = Wish.objects.all().order_by('-created_at')
             serializer = WishListSerializer(wishes, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -63,26 +63,37 @@ class WishView(APIView):
 
 
 class CommentView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request, wish_id):
+        comments = Comment.objects.filter(wish_id=wish_id).order_by("-created_at")
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, wish_id):
         """wish_id를 받아 해당 위시에 댓글을 생성합니다."""
-        serialzer = CommentSerializer(data=request.data)
-        if serialzer.is_valid():
-            serialzer.save(author=request.user, wish_id=wish_id)
-            return Response(serialzer.data, status=status.HTTP_201_CREATED)
+        if request.user.is_authenticated:
+            serialzer = CommentSerializer(data=request.data)
+            if serialzer.is_valid():
+                serialzer.save(author=request.user, wish_id=wish_id)
+                return Response(serialzer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "로그인이 필요합니다."}, status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, wish_id, comment_id):
         """지정된 댓글을 삭제합니다."""
         comment = get_object_or_404(Comment, id=comment_id)
         # print(comment)
-        if not request.user == comment.author:
-            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        if request.user.is_authenticated:
+            if not request.user == comment.author :
+                return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+            else:
+                comment.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "로그인이 필요합니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        
 
 
 
