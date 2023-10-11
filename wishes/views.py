@@ -14,7 +14,7 @@ class WishView(APIView):
         """
         if wish_id == None:
             """ 모든 게시물 List를 반환합니다. """
-            wishes = Wish.objects.all()
+            wishes = Wish.objects.all().order_by('-created_at')
             serializer = WishListSerializer(wishes, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
