@@ -6,6 +6,7 @@ from wishes.serializers import WishSerializer, WishCreateSerializer, WishListSer
 
 from wishes.models import Wish, Comment
 
+
 class WishView(APIView):
     def get(self, request, wish_id=None):
         """
@@ -22,17 +23,17 @@ class WishView(APIView):
             wish = get_object_or_404(Wish, id=wish_id)
             serializer = WishSerializer(wish)
             return Response(serializer.data, status=status.HTTP_200_OK)
-    
-        
+
     def post(self, request):
         """위시 정보를 받아 위시를 생성합니다."""
         # print(request.META)
         # print(request.META.get("HTTP_AUTHORIZATION"))
         # print(request.FILES)
-        if not request.user.is_authenticated :
-            return Response({"message":"로그인 해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
+        if not request.user.is_authenticated:
+            return Response({"message": "로그인 해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            serializer = WishCreateSerializer(data=request.data, context={'request': request})
+            serializer = WishCreateSerializer(
+                data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save(author=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -43,9 +44,12 @@ class WishView(APIView):
         """수정된 위시 정보를 받아 위시를 수정합니다."""
         wish = get_object_or_404(Wish, id=wish_id)
         if request.user == wish.author:
-            serializer = WishCreateSerializer(wish, data=request.data, context={'request': request}) # 수정 시 필요한 모든 필드가 채워진 상태로 전달될 것이라 판단 -> partial=True 넣지 않음.
+            # 수정 시 필요한 모든 필드가 채워진 상태로 전달될 것이라 판단 -> partial=True 넣지 않음.
+            serializer = WishCreateSerializer(
+                wish, data=request.data, context={'request': request})
             if serializer.is_valid():
-                serializer.save() # 여기는 이미 기존 article에 author가 저장되어있어서 따로 request.user를 안 해줘도 됨.
+                # 여기는 이미 기존 article에 author가 저장되어있어서 따로 request.user를 안 해줘도 됨.
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -85,7 +89,6 @@ class CommentView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 class LikeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -96,15 +99,14 @@ class LikeView(APIView):
         if me in wish.likes.all():
             wish.likes.remove(me)
             return Response("unlike 했습니다.", status=status.HTTP_200_OK)
-        else :
+        else:
             wish.likes.add(me)
             return Response("like 했습니다.", status=status.HTTP_200_OK)
 
 
-
 class BookmarkView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def post(self, request, wish_id):
         """bookmark / unbookmark 기능입니다."""
         wish = Wish.objects.get(id=wish_id)
@@ -112,6 +114,6 @@ class BookmarkView(APIView):
         if me in wish.bookmarks.all():
             wish.bookmarks.remove(me)
             return Response("unbookmark 했습니다.", status=status.HTTP_200_OK)
-        else :
+        else:
             wish.bookmarks.add(me)
             return Response("bookmark 했습니다.", status=status.HTTP_200_OK)

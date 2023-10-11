@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 
 from django.utils.encoding import force_str
 
+
 class EmailVerificationView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -34,7 +35,6 @@ class EmailVerificationView(APIView):
 class SignupView(APIView):
     def post(self, request):
         """사용자 정보를 받아 회원가입합니다."""
-
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -57,18 +57,19 @@ class SignupView(APIView):
 
             return Response({"message": "회원가입 성공! 이메일을 확인하세요."}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProfileView(APIView):
     def get(self, request, user_id):
         """사용자의 프로필을 받아 보여줍니다."""
         profile = get_object_or_404(User, id=user_id)
-        if request.user.email == profile.email:                
-            serializer = ProfileSerializer(profile)    
+        if request.user.email == profile.email:
+            serializer = ProfileSerializer(profile)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({"message":"권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-        
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
     def put(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
@@ -79,8 +80,8 @@ class ProfileView(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"message":"권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-        
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
 
 class LoginView(TokenObtainPairView):
     """
