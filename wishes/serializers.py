@@ -66,14 +66,21 @@ class WishListSerializer(serializers.ModelSerializer):
         fields = ("id", "author", "title", "wish_name", "content", "images", "likes_count", "bookmarks_count", "created_at")
 
 class CommentSerializer(serializers.ModelSerializer):   # comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
+    author = serializers.SerializerMethodField()
+    
+    def get_author(self, obj):
+        return obj.author.username
+    
     class Meta:
         model = Comment
-        fields = ("author", "content", "created_at")
+        fields = ("id", "author", "content", "created_at")
 
 class WishSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
-    likes = serializers.StringRelatedField(many=True)
-    bookmarks = serializers.StringRelatedField(many=True)
+    likes = serializers.StringRelatedField(many=True)       # 중복
+    bookmarks = serializers.StringRelatedField(many=True)   # 중복
+    likes_count = serializers.SerializerMethodField()
+    bookmarks_count = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True) # 특정 wish에 작성된 comment list 불러오기 
     comments_set_count = serializers.SerializerMethodField()    # 특정 wish에 작성된 comments 개수 세기
@@ -93,8 +100,11 @@ class WishSerializer(serializers.ModelSerializer):
         """
         return obj.author.username
 
-    likes = serializers.StringRelatedField(many=True)
-    bookmarks = serializers.StringRelatedField(many=True)
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_bookmarks_count(self, obj):
+        return obj.bookmarks.count()
 
     class Meta:
         model = Wish
