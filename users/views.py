@@ -13,17 +13,34 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 
 from django.utils.encoding import force_str
+from .tasks import send_verification_email
+from .tasks import test_task
+from django.http import HttpRequest
+from rest_framework import views
+
+
+class Test(views.APIView):
+    def get(self, request: HttpRequest):
+        test_task.delay(2, 5)
+        return Response("Celery Task Running")
+
+
+class Test(views.APIView):
+    def get(self, request: HttpRequest):
+        test_task.delay(2, 5)
+        return Response("Celery Task Running")
 
 
 class EmailVerificationView(APIView):
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
+            user = User.objects.get(id=uid)
 
             if default_token_generator.check_token(user, token):
                 # 사용자 모델의 email_verified 필드를 True로 설정
-                user.email_verified = True
+                # user.email_verified = True
+                user.is_active = True
                 user.save()
                 return Response({"message": "이메일 확인이 완료되었습니다."}, status=status.HTTP_200_OK)
             else:
@@ -48,12 +65,15 @@ class SignupView(APIView):
             # 이메일 전송 코드 작성 및 이메일에 verification_url을 포함하여 보내기
 
             # 이메일 전송
-            subject = '이메일 확인 링크'
-            message = f'이메일 확인을 완료하려면 다음 링크를 클릭하세요: {verification_url}'
-            from_email = 'estherwoo01@gmail.com'
-            recipient_list = [user.email]
+            # subject = '이메일 확인 링크'
+            # message = f'이메일 확인을 완료하려면 다음 링크를 클릭하세요: {verification_url}'
+            # from_email = 'estherwoo01@gmail.com'
+            # recipient_list = [user.email]
 
-            send_mail(subject, message, from_email, recipient_list)
+            # send_mail(subject, message, from_email, recipient_list)
+
+            send_verification_email.delay(
+                user.id, verification_url, user.email)
 
             return Response({"message": "회원가입 성공! 이메일을 확인하세요."}, status=status.HTTP_201_CREATED)
         else:

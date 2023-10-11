@@ -1,13 +1,11 @@
-import uuid
 from django.db import models
 from django.conf import settings
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
 
-    def __str__(self):
-        return self.name
+    name = models.CharField(
+        max_length=32, blank=True, null=True)
 
 
 class Wish(models.Model):
@@ -37,7 +35,7 @@ class Wish(models.Model):
         settings.AUTH_USER_MODEL, verbose_name="좋아요", related_name="likes")
     bookmarks = models.ManyToManyField(
         settings.AUTH_USER_MODEL, verbose_name="북마크", related_name="bookmarks")
-    tags = models.ManyToManyField(Tag, verbose_name="태그", related_name="tags")
+    tags = models.ManyToManyField(Tag)
 
     def __str__(self):
         return str(self.title)
