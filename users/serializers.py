@@ -14,10 +14,7 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 
 from django.contrib.auth.hashers import check_password
 
-<<<<<<< HEAD
-=======
 from wishes.serializers import WishSerializer
->>>>>>> f90159af0c3add8876df2362c9a4d009145688af
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
