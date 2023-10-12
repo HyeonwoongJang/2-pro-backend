@@ -9,4 +9,5 @@ urlpatterns = [
     path('verify-email/<str:uidb64>/<str:token>/', views.EmailVerificationView.as_view(), name='verify_email'),
     path('test/', views.Test.as_view()),
     path('<str:user_username>/feed/', views.FeedView.as_view(), name='feed_view'),
+    path('<str:user_username>/mypage/', views.MyPageView.as_view(), name='my_page_view'),
 ]
