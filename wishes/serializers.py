@@ -126,6 +126,7 @@ class CommentSerializer(serializers.ModelSerializer):   # comment 정보를 불�
 
 class WishSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
+    author_id = serializers.SerializerMethodField()
     likes = serializers.StringRelatedField(many=True)       # 중복
     bookmarks = serializers.StringRelatedField(many=True)   # 중복
     likes_count = serializers.SerializerMethodField()

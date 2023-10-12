@@ -23,8 +23,7 @@ class Wish(models.Model):
     - bookmarks : 위시를 북마크 한 유저와의 관계입니다.
     """
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="작성자",
-                               on_delete=models.SET_NULL, null=True, related_name="wishes")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="작성자", on_delete=models.SET_NULL, null=True, related_name="wishes")
     title = models.CharField("게시글 제목", max_length=50)
     wish_name = models.CharField("위시 상품명", max_length=50)
     content = models.TextField("내용")
