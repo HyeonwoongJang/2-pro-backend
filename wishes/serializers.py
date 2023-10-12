@@ -14,7 +14,7 @@ class WishImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WishImage
-        fields = ['image']
+        fields = "__all__"
 
 
 class WishCreateSerializer(serializers.ModelSerializer):
@@ -68,7 +68,16 @@ class WishCreateSerializer(serializers.ModelSerializer):
 
         image_set = self.context['request'].FILES.getlist('image')
 
-        instance.image.all().delete()
+        deleted_image_ids = self.context['request'].data.get('deleted_image_ids', []).split(',')
+        print(deleted_image_ids)
+
+        # instance.image.all().delete()
+        # print(instance.image)
+        images = instance.image.all()
+        for image in images:
+            if str(image.id) in deleted_image_ids:
+                image.delete()
+
         for image_data in image_set:
             WishImage.objects.create(wish=instance, image=image_data)
 
@@ -163,5 +172,5 @@ class WishSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wish
-        fields = ("author", "author_id", "likes", "bookmarks", "likes_count", "bookmarks_count", "images", "comments", "comments_set_count", "title", "content", "id", "created_at", "updated_at", "wish_name")
+        fields = ("author", "author_id", "likes", "bookmarks", "likes_count", "bookmarks_count", "images", "comments", "comments_set_count", "title", "content", "id", "created_at", "updated_at", "wish_name", "tags")
 

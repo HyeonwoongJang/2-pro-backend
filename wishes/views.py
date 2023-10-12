@@ -8,39 +8,39 @@ from wishes.models import Wish, Comment
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 
-class WishView(ListAPIView):
-    # APIView에서는 pagination 지원하지 않음(paginate_queryset찾을수없음)
-    queryset = Wish.objects.all().order_by('-created_at')
-    serializer_class = WishListSerializer
-    pagination_class = PageNumberPagination
-    # 쿼리셋으로 게시글 목록을 최신순으로 가져오고 페이지네이션 활성화(settings.py에 페이지당 게시글항목 설정가능)
+# class WishView(ListAPIView):
+#     # APIView에서는 pagination 지원하지 않음(paginate_queryset찾을수없음)
+#     queryset = Wish.objects.all().order_by('-created_at')
+#     serializer_class = WishListSerializer
+#     pagination_class = PageNumberPagination
+#     # 쿼리셋으로 게시글 목록을 최신순으로 가져오고 페이지네이션 활성화(settings.py에 페이지당 게시글항목 설정가능)
 
-    def retrieve(self, request, *args, **kwargs):
-        # retrieve=개별 객체의 상세 정보를 가져오는 역할, #args(매개변수를 튜플로 모을 때) #kwargs(매개변수를 딕셔너리로 모을 때)
-        wish_id = self.kwargs.get('wish_id')
-        if wish_id is not None:
-            wish = get_object_or_404(Wish, id=wish_id)
-            serializer = WishSerializer(wish)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-# class WishView(APIView):
-#     def get(self, request, wish_id=None):
-#         """
-#         wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
-#         wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
-#         """
-#         if wish_id == None:
-#             """ 모든 게시물 List를 반환합니다. """
-#             wishes = Wish.objects.all().order_by('-created_at')
-#             serializer = WishListSerializer(wishes, many=True)
+#     def retrieve(self, request, *args, **kwargs):
+#         # retrieve=개별 객체의 상세 정보를 가져오는 역할, #args(매개변수를 튜플로 모을 때) #kwargs(매개변수를 딕셔너리로 모을 때)
+#         wish_id = self.kwargs.get('wish_id')
+#         if wish_id is not None:
+#             wish = get_object_or_404(Wish, id=wish_id)
+#             serializer = WishSerializer(wish)
 #             return Response(serializer.data, status=status.HTTP_200_OK)
-#         else:
-#                 """ 특정 게시물을 반환합니다. """
-#                 wish = get_object_or_404(Wish, id=wish_id)
-#                 serializer = WishSerializer(wish)
-#                 return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class WishView(APIView):
+    def get(self, request, wish_id=None):
+        """
+        wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
+        wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
+        """
+        if wish_id == None:
+            """ 모든 게시물 List를 반환합니다. """
+            wishes = Wish.objects.all().order_by('-created_at')
+            serializer = WishListSerializer(wishes, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+                """ 특정 게시물을 반환합니다. """
+                wish = get_object_or_404(Wish, id=wish_id)
+                serializer = WishSerializer(wish)
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """위시 정보를 받아 위시를 생성합니다."""
@@ -64,7 +64,7 @@ class WishView(ListAPIView):
         if request.user == wish.author:
             # 수정 시 필요한 모든 필드가 채워진 상태로 전달될 것이라 판단 -> partial=True 넣지 않음.
             serializer = WishCreateSerializer(
-                wish, data=request.data, context={'request': request})
+                wish, data=request.data, context={'request': request}, partial=True)
             if serializer.is_valid():
                 # 여기는 이미 기존 article에 author가 저장되어있어서 따로 request.user를 안 해줘도 됨.
                 serializer.save()

@@ -18,27 +18,7 @@ from .tasks import test_task
 from django.http import HttpRequest
 from rest_framework import views
 
-
-class Test(views.APIView):
-    def get(self, request: HttpRequest):
-        test_task.delay(2, 5)
-        return Response("Celery Task Running")
-
-
-class Test(views.APIView):
-    def get(self, request: HttpRequest):
-        test_task.delay(2, 5)
-        return Response("Celery Task Running")
-
-
-from .tasks import send_verification_email
-
-from .tasks import test_task
-from django.http import HttpRequest
-from rest_framework import views
-
 from django.contrib.auth.hashers import check_password
-
 
 class Test(views.APIView):
     def get(self, request: HttpRequest):
@@ -140,11 +120,11 @@ class LoginView(TokenObtainPairView):
 
 
 class FollowView(APIView):
-    def post(self, request, user_id):
+    def post(self, request, user_username):
         """사용자가 다른 사용자를 팔로우하고 언팔로우합니다."""
 
         # user_id 사용해서 팔로우 사용자 가져오기
-        user = get_object_or_404(User, id=user_id)
+        user = get_object_or_404(User, username=user_username)
         me = request.user  # 팔로우 요청을 보내는 사용자
         if me in user.followers.all():  # 사용자를 이미 팔로우한다면
             # followee 사용자 목록에서 follower remove로 제거하기
