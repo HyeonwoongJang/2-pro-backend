@@ -50,11 +50,10 @@ def image_upload_path(instance, filename):
 class WishImage(models.Model):
     wish = models.ForeignKey(
         Wish, on_delete=models.CASCADE, related_name='image')
-    image = models.ImageField(upload_to=image_upload_path)
+    image = models.ImageField(upload_to=image_upload_path, default='images/DefaultThumbnail.png')
 
     class Meta:
         db_table = 'wish_image'
-
 
 class Comment(models.Model):
     """

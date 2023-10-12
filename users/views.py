@@ -37,6 +37,8 @@ from .tasks import test_task
 from django.http import HttpRequest
 from rest_framework import views
 
+from django.contrib.auth.hashers import check_password
+
 
 class Test(views.APIView):
     def get(self, request: HttpRequest):
@@ -84,12 +86,9 @@ class SignupView(APIView):
 
             # send_mail(subject, message, from_email, recipient_list)
 
-<<<<<<< HEAD
             send_verification_email.delay(
                 user.id, verification_url, user.email)
-=======
-            send_verification_email.delay(user.id, verification_url, user.email)
->>>>>>> f90159af0c3add8876df2362c9a4d009145688af
+
 
             return Response({"message": "회원가입 성공! 이메일을 확인하세요."}, status=status.HTTP_201_CREATED)
         else:
@@ -109,12 +108,27 @@ class ProfileView(APIView):
     def put(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            serializer = UserSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if 'present_pw' in request.data: # 비밀번호 변경할 때
+                if check_password(request.data['present_pw'], user.password) == True: # 현재 비밀번호가 일치하는지 확인.
+                    if request.data['password'] == request.data['password_check']: # 새로 입력한 비밀번호와 비밀번호 확인이 일치하는지 확인.
+                        serializer = UserSerializer(user, data=request.data, partial=True)
+                        if serializer.is_valid():
+                            serializer.save()
+                            return Response(serializer.data, status=status.HTTP_200_OK)
+                        else:
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response({"message":"비밀번호가 일치하지 않습니다. 다시 입력하세요."}, status=status.HTTP_403_FORBIDDEN)
+                else:
+                    return Response({"message":"현재 비밀번호를 확인하세요."}, status=status.HTTP_403_FORBIDDEN)
+
+            else: # 비밀번호는 변경하지 않을 때
+                serializer = UserSerializer(user, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -142,8 +156,7 @@ class FollowView(APIView):
             # 아니면 followee 사용자 목록에 follower 추가
             user.followers.add(me)
             return Response("follow 했습니다.", status=status.HTTP_200_OK)
-<<<<<<< HEAD
-=======
+
 
 class FeedView(APIView):
     def get(self, request, user_username):
@@ -158,4 +171,4 @@ class MyPageView(APIView):
         user = get_object_or_404(User, username=user_username)
         serializer = MyPageSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
->>>>>>> f90159af0c3add8876df2362c9a4d009145688af
+

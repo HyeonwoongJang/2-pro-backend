@@ -5,7 +5,8 @@ from wishes.models import Comment, Wish, WishImage, Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+
+        fields = ['name']
 
 
 class WishImageSerializer(serializers.ModelSerializer):
@@ -33,12 +34,15 @@ class WishCreateSerializer(serializers.ModelSerializer):
         exclude = ("likes", "bookmarks")
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')  # 필드 값을 가져오고
         tag_list = []  # 태그 모델 인스턴스 저장
-        for tag in tags.split(' '):  # 스페이스로 분리해서 각 태그 이름 가져오기
-            tag_instance, created = Tag.objects.get_or_create(name=tag)
-            # 태그 이름으로 tag 모델 가져와서 존재하는 겨우 가져오고 없으면 생성
-            tag_list += [tag_instance]
+        if 'tags' in validated_data:
+
+            tags = validated_data.pop('tags')  # 필드 값을 가져오고
+
+            for tag in tags.split(' '):  # 스페이스로 분리해서 각 태그 이름 가져오기
+                tag_instance, created = Tag.objects.get_or_create(name=tag)
+                # 태그 이름으로 tag 모델 가져와서 존재하는 겨우 가져오고 없으면 생성
+                tag_list += [tag_instance]
             # 찾거나 생성한 태그 인스턴스를 추가
 
         instance = Wish.objects.create(**validated_data)
@@ -90,8 +94,10 @@ class WishListSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     bookmarks_count = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
 
     # 게시글에 등록된 이미지들 가지고 오기
+
     def get_images(self, obj):
         image = obj.image.all()
         return WishImageSerializer(instance=image, many=True, context=self.context).data
@@ -107,28 +113,12 @@ class WishListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wish
-        fields = ("id", "author", "title", "wish_name", "content", "tags"
-                                                                   "images", "likes_count", "bookmarks_count",
-                  "created_at")
+
+        fields = '__all__'
 
 
 # comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-
-    def get_author(self, obj):
-        return obj.author.username
-
-    class Meta:
-        model = Comment
-        fields = ("id", "author", "content", "created_at")
-
-
-class WishSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-
-
-class CommentSerializer(serializers.ModelSerializer):  # comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
     author = serializers.SerializerMethodField()
 
     def get_author(self, obj):
