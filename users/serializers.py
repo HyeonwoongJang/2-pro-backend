@@ -26,17 +26,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 
     """ 회원가입 페이지, 회원 정보 수정 페이지에서 사용자가 보내는 JSON 형태의 데이터를 역직렬화하여 모델 객체 형태의 데이터를 생성하기 위한 Serializer 입니다. """
-   # 이메일 중복 검증
+    # 이메일 중복 검증
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(
-            queryset=User.objects.all(), message="해당 이메일은 이미 사용중입니다.",)]
+        validators=[UniqueValidator]
     )
 
     username = serializers.CharField(
         required=True,
-        validators=[UniqueValidator(
-            queryset=User.objects.all(), message="해당 유저이름은 이미 사용중입니다.")]
+        validators=[UniqueValidator]
     )
 
     password = serializers.CharField(
