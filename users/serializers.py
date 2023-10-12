@@ -14,6 +14,7 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 
 from django.contrib.auth.hashers import check_password
 
+from wishes.serializers import WishSerializer
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -110,3 +111,21 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['profile_img'] = user.profile_img.url
 
         return token
+
+class FeedSerializer(serializers.ModelSerializer):
+
+    following_wishes = serializers.SerializerMethodField()
+    
+    def get_following_wishes(seld, obj):
+        followee_list = obj.following.all()
+        all_wishes = []
+        for followee in followee_list :
+            followee_wishes = followee.wishes.all().order_by('-created_at')
+            all_wishes.extend(followee_wishes)
+            
+        all_wishes = sorted(all_wishes, key=lambda x: x.created_at, reverse=True)
+        return WishSerializer(instance=all_wishes, many=True).data
+
+    class Meta:
+        model = User
+        fields = ["following_wishes"]

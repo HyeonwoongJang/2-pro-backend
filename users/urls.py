@@ -8,4 +8,5 @@ urlpatterns = [
     path('follow/<int:user_id>/', views.FollowView.as_view(), name='follow_view'),
     path('verify-email/<str:uidb64>/<str:token>/', views.EmailVerificationView.as_view(), name='verify_email'),
     path('test/', views.Test.as_view()),
+    path('<str:user_username>/feed/', views.FeedView.as_view(), name='feed_view'),
 ]
