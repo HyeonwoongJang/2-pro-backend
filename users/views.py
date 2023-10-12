@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from users.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
-from users.serializers import LoginSerializer, ProfileSerializer, UserSerializer
+from users.serializers import LoginSerializer, ProfileSerializer, UserSerializer, FeedSerializer, MyPageSerializer
 
 # 새로운 사용자를 생성한 후에 이메일 확인 토큰을 생성하고 사용자 모델에 저장합니다. 이메일 인증 링크를 사용자의 이메일 주소로 전송합니다.
 from django.contrib.auth.tokens import default_token_generator
@@ -137,3 +137,17 @@ class FollowView(APIView):
             # 아니면 followee 사용자 목록에 follower 추가
             user.followers.add(me)
             return Response("follow 했습니다.", status=status.HTTP_200_OK)
+
+class FeedView(APIView):
+    def get(self, request, user_username):
+        """유저의 피드페이지 입니다."""
+        user = get_object_or_404(User, username=user_username)
+        serializer=FeedSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class MyPageView(APIView):
+    def get(self, request, user_username):
+        """유저의 피드페이지 입니다."""
+        user = get_object_or_404(User, username=user_username)
+        serializer = MyPageSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
