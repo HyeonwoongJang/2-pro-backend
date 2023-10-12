@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from users.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
-from users.serializers import LoginSerializer, ProfileSerializer, UserSerializer
+from users.serializers import LoginSerializer, ProfileSerializer, UserSerializer, FeedSerializer, MyPageSerializer
 
 # 새로운 사용자를 생성한 후에 이메일 확인 토큰을 생성하고 사용자 모델에 저장합니다. 이메일 인증 링크를 사용자의 이메일 주소로 전송합니다.
 from django.contrib.auth.tokens import default_token_generator
@@ -30,6 +30,18 @@ class Test(views.APIView):
         test_task.delay(2, 5)
         return Response("Celery Task Running")
 
+
+from .tasks import send_verification_email
+
+from .tasks import test_task
+from django.http import HttpRequest
+from rest_framework import views
+
+
+class Test(views.APIView):
+    def get(self, request: HttpRequest):
+        test_task.delay(2, 5)
+        return Response("Celery Task Running")
 
 class EmailVerificationView(APIView):
     def get(self, request, uidb64, token):
@@ -72,8 +84,12 @@ class SignupView(APIView):
 
             # send_mail(subject, message, from_email, recipient_list)
 
+<<<<<<< HEAD
             send_verification_email.delay(
                 user.id, verification_url, user.email)
+=======
+            send_verification_email.delay(user.id, verification_url, user.email)
+>>>>>>> f90159af0c3add8876df2362c9a4d009145688af
 
             return Response({"message": "회원가입 성공! 이메일을 확인하세요."}, status=status.HTTP_201_CREATED)
         else:
@@ -126,3 +142,20 @@ class FollowView(APIView):
             # 아니면 followee 사용자 목록에 follower 추가
             user.followers.add(me)
             return Response("follow 했습니다.", status=status.HTTP_200_OK)
+<<<<<<< HEAD
+=======
+
+class FeedView(APIView):
+    def get(self, request, user_username):
+        """유저의 피드페이지 입니다."""
+        user = get_object_or_404(User, username=user_username)
+        serializer=FeedSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class MyPageView(APIView):
+    def get(self, request, user_username):
+        """유저의 피드페이지 입니다."""
+        user = get_object_or_404(User, username=user_username)
+        serializer = MyPageSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+>>>>>>> f90159af0c3add8876df2362c9a4d009145688af

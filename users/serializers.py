@@ -14,6 +14,10 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 
 from django.contrib.auth.hashers import check_password
 
+<<<<<<< HEAD
+=======
+from wishes.serializers import WishSerializer
+>>>>>>> f90159af0c3add8876df2362c9a4d009145688af
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -108,3 +112,60 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['profile_img'] = user.profile_img.url
 
         return token
+
+class FeedSerializer(serializers.ModelSerializer):
+
+    following_wishes = serializers.SerializerMethodField()
+    
+    def get_following_wishes(seld, obj):
+        followee_list = obj.following.all()
+        all_wishes = []
+        for followee in followee_list :
+            followee_wishes = followee.wishes.all().order_by('-created_at')
+            all_wishes.extend(followee_wishes)
+            
+        all_wishes = sorted(all_wishes, key=lambda x: x.created_at, reverse=True)
+        return WishSerializer(instance=all_wishes, many=True).data
+
+    class Meta:
+        model = User
+        fields = ["following_wishes"]
+
+class MyPageSerializer(serializers.ModelSerializer):
+    follower = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+    follower_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+    like_wishes = serializers.SerializerMethodField()
+    bookmark_wishes = serializers.SerializerMethodField()
+    wishes = serializers.SerializerMethodField()
+
+    def get_follower(self, obj):
+        follower_list = obj.followers.all().order_by('-id')
+        return UserSerializer(instance=follower_list, many=True).data
+    
+    def get_following(self, obj):
+        followee_list = obj.following.all().order_by('-id')
+        return UserSerializer(instance=followee_list, many=True).data
+
+    def get_follower_count(self, obj):
+        return obj.followers.count()
+    
+    def get_following_count(self, obj):
+        return obj.following.count()
+    
+    def get_like_wishes(self, obj):
+        like_wishes = obj.likes.all().order_by('-created_at')
+        return WishSerializer(instance=like_wishes, many=True).data
+    
+    def get_bookmark_wishes(self, obj):
+        bookmark_wishes = obj.bookmarks.all().order_by('-created_at')
+        return WishSerializer(instance=bookmark_wishes, many=True).data
+
+    def get_wishes(self, obj):
+        wishes=obj.wishes.all().order_by('-created_at')
+        return WishSerializer(instance=wishes, many=True).data
+
+    class Meta:
+        model = User
+        fields = ["follower", "following", "follower_count", "following_count", "like_wishes", "bookmark_wishes", "profile_img", "wishes"]
