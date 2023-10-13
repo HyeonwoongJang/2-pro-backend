@@ -5,6 +5,7 @@ from wishes.models import Comment, Wish, WishImage, Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
+
         fields = ['name']
 
 
@@ -33,12 +34,15 @@ class WishCreateSerializer(serializers.ModelSerializer):
         exclude = ("likes", "bookmarks")
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')  # 필드 값을 가져오고
         tag_list = []  # 태그 모델 인스턴스 저장
-        for tag in tags.split(' '):  # 스페이스로 분리해서 각 태그 이름 가져오기
-            tag_instance, created = Tag.objects.get_or_create(name=tag)
-            # 태그 이름으로 tag 모델 가져와서 존재하는 겨우 가져오고 없으면 생성
-            tag_list += [tag_instance]
+        if 'tags' in validated_data:
+
+            tags = validated_data.pop('tags')  # 필드 값을 가져오고
+
+            for tag in tags.split(' '):  # 스페이스로 분리해서 각 태그 이름 가져오기
+                tag_instance, created = Tag.objects.get_or_create(name=tag)
+                # 태그 이름으로 tag 모델 가져와서 존재하는 겨우 가져오고 없으면 생성
+                tag_list += [tag_instance]
             # 찾거나 생성한 태그 인스턴스를 추가
 
         instance = Wish.objects.create(**validated_data)
@@ -109,16 +113,17 @@ class WishListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wish
+
         fields = '__all__'
 
 
-
-class CommentSerializer(serializers.ModelSerializer):   # comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
+# comment 정보를 불러오기 위해선 author, content, created_at 모두 있어야 함.
+class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
-    
+
     def get_author(self, obj):
         return obj.author.username
-    
+
     class Meta:
         model = Comment
         fields = ("id", "author", "content", "created_at")
@@ -127,8 +132,8 @@ class CommentSerializer(serializers.ModelSerializer):   # comment 정보를 불�
 class WishSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     author_id = serializers.SerializerMethodField()
-    likes = serializers.StringRelatedField(many=True)       # 중복
-    bookmarks = serializers.StringRelatedField(many=True)   # 중복
+    likes = serializers.StringRelatedField(many=True)  # 중복
+    bookmarks = serializers.StringRelatedField(many=True)  # 중복
     likes_count = serializers.SerializerMethodField()
     bookmarks_count = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
@@ -151,9 +156,12 @@ class WishSerializer(serializers.ModelSerializer):
         author필드를 정참조하여 참조 모델 객체(User)의 username 필드 값을 반환합니다.
         """
         return obj.author.username
-    
+
     def get_author_id(self, obj):
         return obj.author.id
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
 
     def get_likes_count(self, obj):
         return obj.likes.count()
@@ -163,5 +171,4 @@ class WishSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wish
-        fields = ("author", "author_id", "likes", "bookmarks", "likes_count", "bookmarks_count", "images", "comments", "comments_set_count", "title", "content", "id", "created_at", "updated_at", "wish_name")
-
+        fields = "__all__"

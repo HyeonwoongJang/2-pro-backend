@@ -3,12 +3,12 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from wishes.serializers import WishSerializer, WishCreateSerializer, WishListSerializer, CommentSerializer
-
 from wishes.models import Wish, Comment
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 
-class WishView(ListAPIView):
+
+class WishListView(ListAPIView):
     # APIView에서는 pagination 지원하지 않음(paginate_queryset찾을수없음)
     queryset = Wish.objects.all().order_by('-created_at')
     serializer_class = WishListSerializer
@@ -17,30 +17,12 @@ class WishView(ListAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         # retrieve=개별 객체의 상세 정보를 가져오는 역할, #args(매개변수를 튜플로 모을 때) #kwargs(매개변수를 딕셔너리로 모을 때)
+
         wish_id = self.kwargs.get('wish_id')
         if wish_id is not None:
             wish = get_object_or_404(Wish, id=wish_id)
             serializer = WishSerializer(wish)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-# class WishView(APIView):
-#     def get(self, request, wish_id=None):
-#         """
-#         wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
-#         wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
-#         """
-#         if wish_id == None:
-#             """ 모든 게시물 List를 반환합니다. """
-#             wishes = Wish.objects.all().order_by('-created_at')
-#             serializer = WishListSerializer(wishes, many=True)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         else:
-#                 """ 특정 게시물을 반환합니다. """
-#                 wish = get_object_or_404(Wish, id=wish_id)
-#                 serializer = WishSerializer(wish)
-#                 return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """위시 정보를 받아 위시를 생성합니다."""
@@ -57,6 +39,19 @@ class WishView(ListAPIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WishView(APIView):
+    def get(self, request, wish_id):
+        """
+        wish_id를 받아 특정 게시물을 Response 합니다. (Read : Wish Detail Page)
+        wish_id가 없을 경우 모든 게시물을 Response 합니다. (Main Page)
+        """
+
+        """ 특정 게시물을 반환합니다. """
+        wish = get_object_or_404(Wish, id=wish_id)
+        serializer = WishSerializer(wish)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, wish_id):
         """수정된 위시 정보를 받아 위시를 수정합니다."""
@@ -86,7 +81,8 @@ class WishView(ListAPIView):
 
 class CommentView(APIView):
     def get(self, request, wish_id):
-        comments = Comment.objects.filter(wish_id=wish_id).order_by("-created_at")
+        comments = Comment.objects.filter(
+            wish_id=wish_id).order_by("-created_at")
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
