@@ -59,7 +59,7 @@ class WishView(APIView):
         if request.user == wish.author:
             # 수정 시 필요한 모든 필드가 채워진 상태로 전달될 것이라 판단 -> partial=True 넣지 않음.
             serializer = WishCreateSerializer(
-                wish, data=request.data, context={'request': request})
+                wish, data=request.data, context={'request': request}, partial=True)
             if serializer.is_valid():
                 # 여기는 이미 기존 article에 author가 저장되어있어서 따로 request.user를 안 해줘도 됨.
                 serializer.save()
